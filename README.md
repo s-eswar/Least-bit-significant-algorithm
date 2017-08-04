@@ -1,4 +1,4 @@
-# Least-bit-significant-algorithm
+# Least-significant-bit algorithm
 A C++ project for the sequential code of LSB algorithm for image steganography
 
 For running this code you need Opencv 2.4.13 version or more.
