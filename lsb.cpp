@@ -126,15 +126,20 @@ Mat encode(Mat new_image,int size,char *binary)
 {
     unsigned int out;
     int m=0;
-    for(int i=0;i<size;i++)
+    for(int i=0;i<new_image.rows;i++)
     {
-      for(int k=0;k<8;k++)
+      for(int k=0;k<new_image.cols;k++)
       {
-        out=new_image.at<uchar>(i,k) & 254;       // ANDing each pixeel with the mask size of 254 
+        if(m<size*8)
+        {
+         out=new_image.at<uchar>(i,k) & 254;       // ANDing each pixeel with the mask size of 254 
         if(binary[m]=='1' && m<size*8)             // changing the last bit based on the binary value of hiding text. Needs to be changed if it 1
            out=out|1;
         new_image.at<uchar>(i,k)=out;             // writing back to the new_image as its new pixel value
         m++;
+        }
+        else 
+ 	   break;
 
       }
     }
@@ -147,16 +152,21 @@ void decode(Mat image,int size,char *out_binary)
 {
   unsigned int out;
   int m=0;
-  for(int i=0;i<size;i++)
+  for(int i=0;i<image.rows;i++)
   {
-      for(int k=0;k<8;k++)
+      for(int k=0;k<image.cols;k++)
       {
+        if(m<size*8)
+       {
         out=image.at<uchar>(i,k) & 1 ;             // ANDing with 1 to get the lastbit of the byte
         if(out==1)                                 // putting binary character into an out_binary array
            out_binary[m]='1';                    
         else
            out_binary[m]='0';
         m++;
+       }
+       else
+ 	  break;
       }
     }
 }
@@ -174,7 +184,7 @@ int main( int argc, char** argv )
         cout <<  "Could not open or find the image" << std::endl ;
         return -1;
     }
-    
+    cout<<image.total()<<endl; 
     imshow( "original", image );
     waitKey(0);                                             // Wait for a keystroke in the window
     
@@ -190,9 +200,11 @@ int main( int argc, char** argv )
     decode(new_image,size,out_binary);                      // decoding function call
     
     bin_to_ascii(out_binary,ascii);                         // converting binary to ascii. retrieving the message
-    
+/*    for(int y=0;y<size;y++)
+      cout<<ascii[y]; */
     //namedWindow( " Display window", 1 );
     imshow( "stego image", new_image );
+    imwrite( "original_image.bmp", image );
     imwrite( "stego_image.bmp", new_image );
     waitKey(0);                                          // Wait for a keystroke in the window
     return 0;
